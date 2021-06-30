@@ -3,14 +3,14 @@
 name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# events but only for the main branch
 on:
   push:
-    branches: [ master ]
+    branches: [main]
   pull_request:
-    branches: [ master ]
+    branches: [main]
   schedule:
-  - cron: "0 0 * * *"
+    - cron: "15 4 * * 2"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -21,44 +21,44 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@master
-      
-    - name: install denpends
-      run: |
-        sudo apt-get update 
-        sudo apt-get install -y wget curl grep gzip findutils git
-    
-    - name: run the script
-      run: |
-        curl -A "User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0" -s https://www.iblocklist.com/lists.php \
-        | sed -n "s/.*value='\(http:.*\)'.*/\1/p" \
-        | sed "s/\&amp;/\&/g" \
-        | sed "s/http/\"http/g" \
-        | sed "s/gz/gz\"/g" \
-        | xargs curl -s -L \
-        | gunzip \
-        | egrep -v '^#' \
-        | sed "/^$/d" \
-        | gzip -  > bt_blocklists.gz
-        
-    - name: check size
-      run: |
-        check=`du -s bt_blocklists.gz | awk '{print $1}'`
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@main
 
-        if [ "$check" -lt 1000 ]
-        then
-        exit 2
-        fi
-    
-    - name: Commit files
-      run: |
-        git config --local user.email "naunter@github.com"
-        git config --local user.name "naunter"
-        git add -A
-        git commit -m "update"
-        
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: install denpends
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y wget curl grep gzip findutils git
+
+      - name: run the script
+        run: |
+          curl -A "User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0" -s https://www.iblocklist.com/lists.php \
+          | sed -n "s/.*value='\(http:.*\)'.*/\1/p" \
+          | sed "s/\&amp;/\&/g" \
+          | sed "s/http/\"http/g" \
+          | sed "s/gz/gz\"/g" \
+          | xargs curl -s -L \
+          | gunzip \
+          | egrep -v '^#' \
+          | sed "/^$/d" \
+          | gzip -  > bt_blocklists.gz
+
+      - name: check size
+        run: |
+          check=`du -s bt_blocklists.gz | awk '{print $1}'`
+
+          if [ "$check" -lt 1000 ]
+          then
+          exit 2
+          fi
+
+      - name: Commit files
+        run: |
+          git config --local user.email "adam@adammenges.com"
+          git config --local user.name "adammenges"
+          git add -A
+          git commit -m "update"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@main
+        with:
+          github_token: ${{ secrets.TOKEN }}
