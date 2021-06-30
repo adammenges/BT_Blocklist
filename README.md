@@ -1,4 +1,4 @@
-# BT_Blocklist# BT_BlockLists
+# BT_Blocklist
 
 Transmission block list
 
